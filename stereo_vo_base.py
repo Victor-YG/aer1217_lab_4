@@ -128,14 +128,14 @@ class VisualOdometry:
         pa, pb = self.reprojection(features_coor)
 
         # outlier rejection with RANSAC
-        pa_in, pb_in = self.ransac(pa, pb)
+        pa_in, pb_in, filtered_indices = self.ransac(pa, pb)
 
         # final point cloud alignment with all inliers (pa --> pb)
         C, r = self.point_cloud_alignment(pa_in, pb_in)
 
         # replace (1) the dummy C and r to the estimated C and r.
         #         (2) the original features to the filtered features
-        return C, r, f_r_prev, f_r_cur
+        return C, r, f_r_prev[filtered_indices], f_r_cur[filtered_indices]
 
 
     def reprojection(self, features_coor):
@@ -171,7 +171,7 @@ class VisualOdometry:
         return pa[0:3, :], pb[0:3, :]
 
 
-    def ransac(self, pa, pb, num_samples=3, num_iters=1000, err_thres=5e-2):
+    def ransac(self, pa, pb, num_samples=3, num_iters=1000, err_thres=1e-1):
         max_inliers = 0
 
         pa_filt = pa
@@ -198,7 +198,7 @@ class VisualOdometry:
                 pa_filt = pa[:, inlier_indices].squeeze()
                 pb_filt = pb[:, inlier_indices].squeeze()
 
-        return pa_filt, pb_filt
+        return pa_filt, pb_filt, inlier_indices
 
 
     def point_cloud_alignment(self, pa, pb):
