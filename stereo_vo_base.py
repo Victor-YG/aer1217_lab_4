@@ -118,13 +118,13 @@ class VisualOdometry:
     def pose_estimation(self, features_coor):
         # dummy C and r
         C = np.eye(3)
-        r = np.array([0,0,0])
+        r = np.array([0, 0, 0])
         # feature in right img (without filtering)
-        f_r_prev, f_r_cur = features_coor[:,2:4], features_coor[:,6:8]
+        f_r_prev, f_r_cur = features_coor[:, 2:4], features_coor[:, 6:8]
 
         # ------------- start your code here -------------- #
 
-        # reproject to 3D - pa, pb ~ (4 x N)
+        # reproject to 3D - pa, pb ~ (3 x N)
         pa, pb = self.reprojection(features_coor)
 
         # outlier rejection with RANSAC
@@ -168,7 +168,7 @@ class VisualOdometry:
         pa = pa / pa[3:]
         pb = pb / pb[3:]
 
-        return pa, pb
+        return pa[0:3, :], pb[0:3, :]
 
 
     def ransac(self, pa, pb):
