@@ -172,11 +172,28 @@ class VisualOdometry:
 
 
     def ransac(self, pa, pb):
-        pass
+        return pa, pb
 
 
     def point_cloud_alignment(self, pa, pb):
-        pass
+        '''align point cloud pa and pb such that pb = C_ba * pa + r_ba_b'''
+
+        pa_c = np.average(pa, axis=1).reshape(3, 1)
+        pb_c = np.average(pb, axis=1).reshape(3, 1)
+
+        pa_d = pa - pa_c
+        pb_d = pb - pb_c
+
+        W_ba = np.matmul(pb_d, np.transpose(pa_d)) / len(pa)
+        U, D, Vh = np.linalg.svd(W_ba)
+
+        dUdV = np.eye(3)
+        dUdV[2, 2] = np.linalg.det(U) * np.linalg.det(Vh)
+
+        C_ba = np.matmul(U, np.matmul(dUdV, Vh))
+        r_ba_b = pb_c - np.matmul(C_ba, pa_c)
+
+        return C_ba, r_ba_b
 
 
     def processFirstFrame(self, img_left, img_right):
