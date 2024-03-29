@@ -171,8 +171,34 @@ class VisualOdometry:
         return pa[0:3, :], pb[0:3, :]
 
 
-    def ransac(self, pa, pb):
-        return pa, pb
+    def ransac(self, pa, pb, num_samples=3, num_iters=1000, err_thres=5e-2):
+        max_inliers = 0
+
+        pa_filt = pa
+        pb_filt = pb
+
+        for _ in range(num_iters):
+            # Get sampled points from pa and pb
+            sample_indices = np.random.choice(pa.shape[1] - 1, size=num_samples, replace=False)
+            pa_samples = pa[:, sample_indices]
+            pb_samples = pb[:, sample_indices]
+
+            # Estimate transformation matrix T_ba
+            C_ba, r_ab_in_b = self.point_cloud_alignment(pa_samples, pb_samples)
+
+            # Transform points in pa to pb and calculate errors
+            pa_in_b = C_ba @ pa + r_ab_in_b
+            errors = np.linalg.norm(pa_in_b - pb, axis=0)
+
+            # Calculate inliers and filter points
+            inlier_indices = np.where(errors < err_thres)
+            inliers = inlier_indices[0].size
+            if inliers > max_inliers:
+                max_inliers = inliers
+                pa_filt = pa[:, inlier_indices].squeeze()
+                pb_filt = pb[:, inlier_indices].squeeze()
+
+        return pa_filt, pb_filt
 
 
     def point_cloud_alignment(self, pa, pb):
