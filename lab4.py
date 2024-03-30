@@ -89,8 +89,8 @@ def main():
 
     # record video
     os.chdir(cwd)
-    fourcc = cv.VideoWriter_fourcc(*'MPEG')
-    video = cv.VideoWriter('./video.avi', fourcc, 5.0, (1242, 775))  # 375*2 + 25 (margin)
+    fourcc = cv.VideoWriter_fourcc(*'.mp4')
+    video = cv.VideoWriter('./video.mp4', fourcc, 5.0, (1242, 775))  # 375*2 + 25 (margin)
 
     for img_id in range(sequence_num):
         img_left  = cv.imread(cwd + path_0 + str(img_id).zfill(zero_num) + '.png', 0)
