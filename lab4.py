@@ -89,7 +89,7 @@ def main():
 
     # record video
     os.chdir(cwd)
-    fourcc = cv.VideoWriter_fourcc(*'.mp4')
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')
     video = cv.VideoWriter('./video.mp4', fourcc, 5.0, (1242, 775))  # 375*2 + 25 (margin)
 
     for img_id in range(sequence_num):
