@@ -174,6 +174,7 @@ class VisualOdometry:
 
 
     def ransac(self, pa, pb, num_samples=3, num_iters=1000, err_thres=1e-1):
+        '''Perform outlier rejection between matched correspondence points using RANSAC'''
         max_inliers = 0
 
         pa_filt = pa
